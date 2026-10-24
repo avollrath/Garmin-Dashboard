@@ -399,7 +399,10 @@ try {
   const data = await api("/api/training");
   history = data.history;
   today = data.today;
+  const runId = new URLSearchParams(location.search).get("run");
+  if (runId && history?.scope === "all") period = "all";
   render();
+  if (runId) showRun(runId);
 } catch (error) {
   $("loading").hidden = true;
   $("message").textContent = error.message;

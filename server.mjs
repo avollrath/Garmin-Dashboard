@@ -5,9 +5,12 @@ import { readHistory, syncHistory, today } from "./src/history.mjs";
 let port = Number(process.env.PORT ?? 3000);
 const assets = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
+  ["/stats", ["stats.html", "text/html; charset=utf-8"]],
   ["/app.css", ["app.css", "text/css; charset=utf-8"]],
   ["/app.mjs", ["app.mjs", "text/javascript; charset=utf-8"]],
   ["/metrics.mjs", ["metrics.mjs", "text/javascript; charset=utf-8"]],
+  ["/fun-stats.mjs", ["fun-stats.mjs", "text/javascript; charset=utf-8"]],
+  ["/stats.mjs", ["stats.mjs", "text/javascript; charset=utf-8"]],
   ["/favicon.svg", ["favicon.svg", "image/svg+xml"]],
 ]);
 

@@ -77,6 +77,29 @@ ends today. Partial chart periods are labeled. No coaching scores or recovery es
 Server binds to `127.0.0.1`; credentials never reach browser code. To use another
 local port, add `PORT=3001` to `.env` and restart. This server is for local use.
 
+### Fun statistics
+
+Open **Fun stats** in the sidebar or header, or visit [/stats](http://127.0.0.1:3000/stats).
+Choose All time, a calendar year, or a rolling period to explore:
+
+- Fastest/slowest average pace, longest run, longest duration, and most climbing.
+- Longest consecutive running-day streak, longest pause, and most runs in a day.
+- First/latest recorded runs and earliest/latest local start times.
+- Biggest day, Monday-based week, month, and year by recorded distance.
+- Weekday, time-of-day, and distance habits; first 5 km, 10 km, half-marathon,
+  and marathon distances; combined mileage expressed in marathon distances.
+
+Pace records default to runs of at least 1 km. Adjust the threshold independently
+of other statistics. Streaks count each running date once, regardless of multiple
+runs on that date. Pauses count only days between recorded runs. Tied records use
+the earliest occurrence. All records and milestones are limited to the selected
+period; a year view clips streaks at January 1 and December 31. These use complete
+activity summaries rather than inferred split personal bests. **View run** opens
+the matching activity's detail dialog on Overview.
+
+The page reads the saved snapshot without contacting Garmin. Refresh data from
+Overview, then reload Fun stats to update its records.
+
 ## Step 4: Validate
 
 ```powershell
@@ -88,6 +111,8 @@ Tests use synthetic data and require neither credentials nor network access.
 Checks cover token reuse, sanitized errors, pace and heart rate weighting, missing
 sensors, date boundaries, calendar years and leap days, monthly/yearly buckets,
 full-history pagination, preserved snapshots, and local HTTP access restrictions.
+Fun stats tests cover pace thresholds, calendar-day streaks, rest-day gaps,
+distance records, local time habits, and exact milestone distances.
 The HTTP test also verifies failed refresh leaves the saved snapshot available.
 Live authentication, history import, and dashboard refresh were verified during
 setup. Browser visual QA was unavailable in this session; responsive layout and

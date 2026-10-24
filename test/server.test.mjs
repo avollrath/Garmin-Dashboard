@@ -25,9 +25,12 @@ test(
 
     for (const path of [
       "/",
+      "/stats",
       "/app.css",
       "/app.mjs",
       "/metrics.mjs",
+      "/fun-stats.mjs",
+      "/stats.mjs",
       "/favicon.svg",
     ]) {
       const response = await fetch(base + path);

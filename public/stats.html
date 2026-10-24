@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#202720" />
+    <meta
+      name="description"
+      content="Personal running records, streaks, milestones, and habits."
+    />
+    <title>Fun stats — Stride</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/app.css" />
+    <script type="module" src="/stats.mjs"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to statistics</a>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Stride home"
+        ><img src="/favicon.svg" alt="" width="36" height="36" /><span
+          >stride<span class="brand-dot">.</span></span
+        ></a
+      >
+      <div class="sidebar-caption">YOUR RUNNING JOURNAL</div>
+      <nav aria-label="Main navigation">
+        <a class="nav-item" href="/"
+          ><span aria-hidden="true">▦</span> Overview</a
+        >
+        <a class="nav-item" href="/#run-log"
+          ><span aria-hidden="true">≡</span> Run log</a
+        >
+        <a class="nav-item" href="/#consistency"
+          ><span aria-hidden="true">▥</span> Consistency</a
+        >
+        <a class="nav-item active" href="/stats" aria-current="page"
+          ><span aria-hidden="true">☆</span> Fun stats
+          <span class="nav-arrow" aria-hidden="true">↗</span></a
+        >
+      </nav>
+      <div class="sidebar-note">
+        <span class="note-mark" aria-hidden="true">☆</span>
+        <p>A few numbers.<br />A lot of stories.</p>
+        <span>The little things add up.</span>
+      </div>
+      <div class="source-card">
+        <span class="source-dot"></span>
+        <div>Garmin Connect<small>Official Personal API</small></div>
+        <span class="source-lock" aria-label="Local dashboard">⌂</span>
+      </div>
+      <div class="sidebar-footer">Your data. Your pace.</div>
+    </aside>
+
+    <main id="main">
+      <header class="topbar">
+        <span class="breadcrumb">TRAINING <span>/</span> FUN STATS</span>
+        <div class="topbar-right">
+          <a class="page-link" href="/">← Overview</a
+          ><span class="private-badge"><span></span> Local &amp; private</span>
+        </div>
+      </header>
+      <div class="page">
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow">THE NUMBERS BEHIND THE MILES</p>
+            <h1>Your running lore<span>.</span></h1>
+            <p class="subtitle">
+              Big days, little rituals, and the records you've collected.
+            </p>
+          </div>
+          <span id="stats-status" class="stats-status" role="status"
+            >Loading your running history…</span
+          >
+        </section>
+        <div id="message" class="message" role="alert" hidden></div>
+        <section class="range-row">
+          <div>
+            <h2>Fun stats</h2>
+            <span id="range-caption" class="muted"></span>
+          </div>
+          <div class="period-controls">
+            <div
+              class="range-control"
+              role="group"
+              aria-label="Statistics period"
+            >
+              <button data-period="all" aria-pressed="true" disabled>
+                All time</button
+              ><button data-period="7" aria-pressed="false">7 days</button
+              ><button data-period="28" aria-pressed="false">28 days</button
+              ><button data-period="90" aria-pressed="false">90 days</button>
+            </div>
+            <select id="year-select" aria-label="Calendar year" disabled>
+              <option value="">Year…</option>
+            </select>
+          </div>
+        </section>
+        <div id="history-notice" class="message" role="status" hidden>
+          Records cover your saved snapshot.
+          <a href="/">Sync Garmin from Overview</a> to load full history and
+          enable All time and calendar years.
+        </div>
+        <div id="loading" class="loading-state">
+          Finding the stories in your training…
+        </div>
+        <section id="empty" class="empty-state" hidden>
+          <span aria-hidden="true">☆</span>
+          <h2>A story waiting to happen.</h2>
+          <p id="empty-text">
+            Import your running history to see your personal records.
+          </p>
+          <a class="text-button" href="/">Back to Overview →</a>
+        </section>
+
+        <div id="stats-content" hidden>
+          <section
+            class="stats-totals"
+            aria-label="Running totals"
+            id="stats-totals"
+          ></section>
+          <section class="stats-section" aria-labelledby="records-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">THE STANDOUTS</p>
+                <h2 id="records-heading">Your record book</h2>
+              </div>
+              <label class="pace-filter"
+                >Pace records
+                <select id="pace-minimum">
+                  <option value="0">Any distance</option>
+                  <option value="1000" selected>1 km+</option>
+                  <option value="5000">5 km+</option>
+                  <option value="10000">10 km+</option>
+                </select></label
+              >
+            </div>
+            <div class="stats-grid" id="record-cards"></div>
+            <p class="panel-footnote">
+              Fastest and slowest use whole-run average pace, not split records
+              or top speed. Distance filter applies only to those two records.
+            </p>
+          </section>
+          <section class="stats-section" aria-labelledby="moments-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">DATES WORTH REMEMBERING</p>
+                <h2 id="moments-heading">
+                  The firsts, the lasts, the in-betweens
+                </h2>
+              </div>
+            </div>
+            <div class="stats-grid" id="moment-cards"></div>
+          </section>
+          <section class="stats-section" aria-labelledby="volume-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">WHEN IT ALL ADDED UP</p>
+                <h2 id="volume-heading">Your biggest stretches</h2>
+              </div>
+            </div>
+            <div class="stats-grid" id="volume-cards"></div>
+            <p class="panel-footnote">
+              Weeks start Monday. Totals include only runs inside the selected
+              period; first and current calendar periods may be partial.
+            </p>
+          </section>
+          <section class="stats-section" aria-labelledby="habits-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">CREATURE OF HABIT?</p>
+                <h2 id="habits-heading">Your running rhythm</h2>
+              </div>
+            </div>
+            <div class="habits-grid">
+              <section class="panel">
+                <h3>Day of the week</h3>
+                <p id="weekday-note" class="habit-note"></p>
+                <div id="weekday-chart" class="habit-chart"></div>
+              </section>
+              <section class="panel">
+                <h3>When you head out</h3>
+                <p id="time-note" class="habit-note"></p>
+                <div id="time-chart" class="habit-chart"></div>
+                <p class="panel-footnote">
+                  Start times use each run's recorded local time.
+                </p>
+              </section>
+              <section class="panel">
+                <h3>Your usual distance</h3>
+                <p id="distance-note" class="habit-note"></p>
+                <div id="distance-chart" class="habit-chart"></div>
+              </section>
+            </div>
+          </section>
+          <section class="stats-section" aria-labelledby="milestones-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">THE DISTANCE FIRSTS</p>
+                <h2 id="milestones-heading">Crossing new lines</h2>
+              </div>
+            </div>
+            <div class="stats-grid" id="milestone-cards"></div>
+            <p class="panel-footnote">
+              First recorded run in the selected period at or above each
+              distance. These are whole-activity milestones, not measured split
+              personal bests.
+            </p>
+          </section>
+        </div>
+        <footer class="page-footer">
+          <span><strong>stride.</strong> Every run leaves a little story.</span
+          ><span
+            >Saved Garmin Connect data <span class="footer-dot">·</span> Metric
+            units</span
+          >
+        </footer>
+      </div>
+    </main>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to view your running statistics.
+      </p></noscript
+    >
+  </body>
+</html>
