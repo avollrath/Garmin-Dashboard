@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { readHistory, syncHistory, today } from "./src/history.mjs";
 
-const port = Number(process.env.PORT ?? 3000);
+let port = Number(process.env.PORT ?? 3000);
 const assets = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/app.css", ["app.css", "text/css; charset=utf-8"]],
@@ -91,6 +91,7 @@ server.on("error", (error) => {
   process.exitCode = 1;
 });
 server.listen(port, "127.0.0.1", () => {
+  port = server.address().port;
   console.log(`Running dashboard: http://127.0.0.1:${port}`);
   console.log("Local access only. Press Ctrl+C to stop.");
 });

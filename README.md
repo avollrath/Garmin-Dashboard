@@ -79,6 +79,13 @@ npm.cmd test
 
 Tests use synthetic data and require neither credentials nor network access.
 
+Checks cover token reuse, sanitized errors, pace and heart rate weighting, missing
+sensors, date boundaries, weekly buckets, and local HTTP access restrictions.
+The HTTP test also verifies failed refresh leaves the saved snapshot available.
+Live authentication, history import, and dashboard refresh were verified during
+setup. Browser visual QA was unavailable in this session; responsive layout and
+browser interactions still need a visual check.
+
 Hosting and scheduled synchronization can be decided separately.
 
 ## Official references
