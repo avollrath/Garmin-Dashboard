@@ -2,9 +2,10 @@ import {
   duration,
   inRange,
   pace,
+  periodRange,
   shiftDate,
   summarize,
-  weeks,
+  groupRuns,
 } from "/metrics.mjs";
 
 const $ = (id) => document.getElementById(id);
@@ -33,7 +34,7 @@ const runPace = (run) =>
 const zoneColors = ["#dfe6d5", "#bad397", "#84aa62", "#c9ac69", "#bb806b"];
 let history,
   today,
-  days = 28,
+  period = "28",
   showAll = false;
 
 async function api(path, options) {
@@ -73,20 +74,45 @@ function render() {
       }).toUpperCase()
     : "YOUR TRAINING, IN PERSPECTIVE";
   updateStatus();
-  const start = today ? shiftDate(today, 1 - days) : null;
-  $("range-caption").textContent = start
-    ? `${dateLabel(start)} — ${dateLabel(today)}`
+  const fullHistory = history?.scope === "all";
+  $("history-notice").hidden = !history || fullHistory;
+  document.querySelector('[data-period="all"]').disabled = !fullHistory;
+  $("year-select").disabled = !fullHistory;
+  const currentYear = Number(today?.slice(0, 4));
+  const firstYear = Number(history?.startDate.slice(0, 4) ?? currentYear);
+  $("year-select").innerHTML =
+    '<option value="">Year…</option>' +
+    (fullHistory
+      ? Array.from(
+          { length: currentYear - firstYear + 1 },
+          (_, i) =>
+            `<option value="${currentYear - i}">${currentYear - i}</option>`,
+        ).join("")
+      : "");
+  $("year-select").value = period.startsWith("year:") ? period.slice(5) : "";
+  document
+    .querySelectorAll("[data-period]")
+    .forEach((button) =>
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.period === period),
+      ),
+    );
+  const range = today ? periodRange(period, today, history?.startDate) : null;
+  const dateOptions = { day: "numeric", month: "short", year: "numeric" };
+  $("range-caption").textContent = range
+    ? `${dateLabel(range.start, dateOptions)} — ${dateLabel(range.end, dateOptions)}`
     : "";
   $("empty").hidden = Boolean(history?.runs.length);
   $("dashboard").hidden = !history?.runs.length;
   if (!history?.runs.length) {
     $("empty-text").textContent = history
-      ? "No running activities found in the last 90 days. Sync again after your next run."
+      ? "No running activities found. Sync again after your next run."
       : "Sync Garmin to bring your running history into view.";
     return;
   }
 
-  const runs = inRange(history.runs, today, days);
+  const runs = inRange(history.runs, range.start, range.end);
   const summary = summarize(runs);
   $("total-distance").textContent = number(summary.km);
   $("total-time").textContent = duration(summary.seconds);
@@ -94,10 +120,13 @@ function render() {
   $("run-count").textContent = summary.count;
   $("run-note").textContent =
     `${summary.days} active ${summary.days === 1 ? "day" : "days"} · ${number(summary.longestKm)} km longest`;
-  const previousStart = shiftDate(start, -days);
-  if (previousStart >= history.startDate) {
+  const days = Number(period);
+  const previousStart = Number.isFinite(days)
+    ? shiftDate(range.start, -days)
+    : null;
+  if (previousStart && (fullHistory || previousStart >= history.startDate)) {
     const previous = summarize(
-      inRange(history.runs, shiftDate(start, -1), days),
+      inRange(history.runs, previousStart, shiftDate(range.start, -1)),
     );
     const change =
       previous.km > 0 ? ((summary.km - previous.km) / previous.km) * 100 : null;
@@ -108,14 +137,27 @@ function render() {
   } else {
     $("distance-note").textContent = "Your distance in this period";
   }
-  renderVolume(weeks(runs, start, today));
-  renderLatest(history.runs[0]);
+  renderVolume(groupRuns(runs, range.start, range.end, range.unit), range.unit);
+  renderLatest(runs[0]);
   renderCalendar();
   renderZones(summary.zones);
   renderTable();
 }
 
-function renderVolume(buckets) {
+function renderVolume(buckets, unit) {
+  const heading =
+    unit === "year" ? "Yearly" : unit === "month" ? "Monthly" : "Weekly";
+  $("volume-heading").textContent = `${heading} distance`;
+  $("volume-note").textContent =
+    unit === "week"
+      ? "Weeks start Monday. First and current weeks may be partial."
+      : `Calendar ${unit}s. First and current ${unit}s may be partial.`;
+  const bucketLabel = (date) =>
+    unit === "year"
+      ? date.slice(0, 4)
+      : unit === "month"
+        ? dateLabel(date, { month: "short" })
+        : dateLabel(date);
   const width = 640,
     height = 218,
     left = 30,
@@ -141,17 +183,24 @@ function renderVolume(buckets) {
       const barHeight = (week.km / maximum) * plotHeight;
       const x = left + i * slot + slot / 2;
       const label =
-        buckets.length < 9 || i % 2 === 0 || i === buckets.length - 1
-          ? dateLabel(week.date)
+        buckets.length < 13 ||
+        i % Math.ceil(buckets.length / 10) === 0 ||
+        i === buckets.length - 1
+          ? bucketLabel(week.date)
           : "";
-      return `<rect class="bar" x="${x - barWidth / 2}" y="${top + plotHeight - barHeight}" width="${barWidth}" height="${Math.max(barHeight, 1)}" rx="3"><title>Week of ${dateLabel(week.date)}: ${number(week.km)} km · ${week.count} runs</title></rect><text x="${x}" y="${height - 8}" text-anchor="middle">${label}</text>`;
+      return `<rect class="bar" x="${x - barWidth / 2}" y="${top + plotHeight - barHeight}" width="${barWidth}" height="${Math.max(barHeight, 1)}" rx="3"><title>${unit === "week" ? "Week of " : ""}${bucketLabel(week.date)}: ${number(week.km)} km · ${week.count} runs</title></rect><text x="${x}" y="${height - 8}" text-anchor="middle">${label}</text>`;
     })
     .join("");
   $("volume-chart").innerHTML =
-    `<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="volume-title"><title id="volume-title">Weekly running distance in kilometers. ${escape(buckets.map((week) => `${dateLabel(week.date)}: ${number(week.km)} km`).join("; "))}</title>${grid}${bars}</svg>`;
+    `<svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="volume-title"><title id="volume-title">${heading} running distance in kilometers. ${escape(buckets.map((week) => `${bucketLabel(week.date)}: ${number(week.km)} km`).join("; "))}</title>${grid}${bars}</svg>`;
 }
 
 function renderLatest(run) {
+  if (!run) {
+    $("latest-run").innerHTML =
+      '<p class="zone-empty">No runs in this period.</p>';
+    return;
+  }
   $("latest-run").innerHTML =
     `<div class="latest-distance">${run.distanceMeters == null ? "—" : number(run.distanceMeters / 1000, 2)}<small>km</small></div><span class="latest-name">${escape(run.name)}</span><span class="latest-meta">${dateLabel(run.startLocal, { weekday: "short", day: "numeric", month: "short" })} · ${escape(run.type.replaceAll("_", " "))}</span><div class="latest-stats"><div><strong>${pace(runPace(run))}</strong><span>PACE /KM</span></div><div><strong>${duration(run.durationSeconds)}</strong><span>TIME</span></div><div><strong>${run.averageHr ? Math.round(run.averageHr) : "—"}</strong><span>AVG HR</span></div></div><button class="text-button latest-detail" data-run-id="${run.id}">View run details →</button>`;
 }
@@ -159,14 +208,14 @@ function renderLatest(run) {
 function renderCalendar() {
   const rangeStart = shiftDate(today, -89);
   const byDate = new Map();
-  for (const run of inRange(history.runs, today, 90)) {
+  for (const run of inRange(history.runs, rangeStart, today)) {
     const date = run.startLocal.slice(0, 10);
     byDate.set(
       date,
       (byDate.get(date) ?? 0) + (run.distanceMeters ?? 0) / 1000,
     );
   }
-  const buckets = weeks([], rangeStart, today);
+  const buckets = groupRuns([], rangeStart, today);
   const labels = `<div class="calendar-days" aria-hidden="true">${["M", "", "W", "", "F", "", "S"].map((day) => `<span>${day}</span>`).join("")}</div>`;
   const columns = buckets
     .map((week, index) => {
@@ -199,7 +248,11 @@ function renderCalendar() {
 }
 
 function renderZones(zones) {
-  $("zone-period").textContent = `${days} days`;
+  $("zone-period").textContent = periodRange(
+    period,
+    today,
+    history.startDate,
+  ).label;
   const total = zones.reduce((a, b) => a + b, 0);
   if (!total) {
     $("zones").innerHTML =
@@ -213,7 +266,8 @@ function renderZones(zones) {
 function renderTable() {
   if (!history) return;
   const query = $("search").value.trim().toLowerCase();
-  const runs = inRange(history.runs, today, days).filter((run) =>
+  const range = periodRange(period, today, history.startDate);
+  const runs = inRange(history.runs, range.start, range.end).filter((run) =>
     run.name.toLowerCase().includes(query),
   );
   if ($("sort").value === "longest")
@@ -225,7 +279,7 @@ function renderTable() {
   $("runs-body").innerHTML = shown
     .map(
       (run) =>
-        `<tr><td><button class="run-name" data-run-id="${run.id}"><span class="run-icon" aria-hidden="true">↗</span><span class="run-name-text">${escape(run.name)}</span></button></td><td class="date-cell">${dateLabel(run.startLocal)}</td><td class="distance-cell">${run.distanceMeters == null ? "—" : `${number(run.distanceMeters / 1000, 2)} km`}</td><td>${duration(run.durationSeconds)}</td><td>${pace(runPace(run))}</td><td>${run.averageHr ? `${Math.round(run.averageHr)} <span class="date-cell">bpm</span>` : "—"}</td><td>${run.elevationMeters == null ? "—" : `${Math.round(run.elevationMeters)} m`}</td></tr>`,
+        `<tr><td><button class="run-name" data-run-id="${run.id}"><span class="run-icon" aria-hidden="true">↗</span><span class="run-name-text">${escape(run.name)}</span></button></td><td class="date-cell">${dateLabel(run.startLocal, { day: "numeric", month: "short", year: "numeric" })}</td><td class="distance-cell">${run.distanceMeters == null ? "—" : `${number(run.distanceMeters / 1000, 2)} km`}</td><td>${duration(run.durationSeconds)}</td><td>${pace(runPace(run))}</td><td>${run.averageHr ? `${Math.round(run.averageHr)} <span class="date-cell">bpm</span>` : "—"}</td><td>${run.elevationMeters == null ? "—" : `${Math.round(run.elevationMeters)} m`}</td></tr>`,
     )
     .join("");
   $("no-results").hidden = runs.length > 0;
@@ -308,18 +362,18 @@ async function sync() {
 
 $("sync").addEventListener("click", sync);
 $("empty-sync").addEventListener("click", sync);
-document.querySelectorAll("[data-days]").forEach((button) =>
+document.querySelectorAll("[data-period]").forEach((button) =>
   button.addEventListener("click", () => {
-    days = Number(button.dataset.days);
+    period = button.dataset.period;
     showAll = false;
-    document
-      .querySelectorAll("[data-days]")
-      .forEach((item) =>
-        item.setAttribute("aria-pressed", String(item === button)),
-      );
     render();
   }),
 );
+$("year-select").addEventListener("change", () => {
+  period = $("year-select").value ? `year:${$("year-select").value}` : "28";
+  showAll = false;
+  render();
+});
 $("search").addEventListener("input", () => {
   showAll = false;
   renderTable();

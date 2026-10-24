@@ -310,6 +310,7 @@ h1 > span {
 }
 .range-row {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 18px;
@@ -352,6 +353,24 @@ h2 {
   background: white;
   box-shadow: 0 1px 4px #2e3b1f0d;
   font-weight: 600;
+}
+.period-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+#year-select {
+  padding: 10px;
+  border: 1px solid #e3e7db;
+  border-radius: 7px;
+  background: white;
+  color: var(--ink);
+  font-size: 11px;
+}
+.range-control button:disabled,
+#year-select:disabled {
+  cursor: not-allowed;
 }
 .metrics {
   display: grid;

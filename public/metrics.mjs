@@ -4,11 +4,33 @@ export function shiftDate(date, days) {
   return result.toISOString().slice(0, 10);
 }
 
-export function inRange(runs, endDate, days) {
-  const start = shiftDate(endDate, 1 - days);
+export function periodRange(period, today, historyStart = today) {
+  if (period === "all") {
+    return { start: historyStart, end: today, label: "All time", unit: "year" };
+  }
+  if (/^year:\d{4}$/.test(period)) {
+    const year = period.slice(5);
+    return {
+      start: `${year}-01-01`,
+      end: `${year}-12-31` < today ? `${year}-12-31` : today,
+      label: year,
+      unit: "month",
+    };
+  }
+  const days = Number(period);
+  if (![7, 28, 90].includes(days)) throw new Error("Unknown training period.");
+  return {
+    start: shiftDate(today, 1 - days),
+    end: today,
+    label: `${days} days`,
+    unit: "week",
+  };
+}
+
+export function inRange(runs, startDate, endDate) {
   return runs.filter(
     (run) =>
-      run.startLocal.slice(0, 10) >= start &&
+      run.startLocal.slice(0, 10) >= startDate &&
       run.startLocal.slice(0, 10) <= endDate,
   );
 }
@@ -53,17 +75,29 @@ export function summarize(runs) {
   };
 }
 
-export function weeks(runs, startDate, endDate) {
+export function groupRuns(runs, startDate, endDate, unit = "week") {
   const start = new Date(`${startDate}T12:00:00Z`);
-  const monday = shiftDate(startDate, -((start.getUTCDay() + 6) % 7));
+  const first =
+    unit === "year"
+      ? `${startDate.slice(0, 4)}-01-01`
+      : unit === "month"
+        ? `${startDate.slice(0, 7)}-01`
+        : shiftDate(startDate, -((start.getUTCDay() + 6) % 7));
   const result = [];
-  for (let date = monday; date <= endDate; date = shiftDate(date, 7)) {
-    const end = shiftDate(date, 6);
+  for (let date = first; date <= endDate; ) {
+    const next = new Date(`${date}T12:00:00Z`);
+    if (unit === "year") next.setUTCFullYear(next.getUTCFullYear() + 1);
+    else if (unit === "month") next.setUTCMonth(next.getUTCMonth() + 1);
+    else next.setUTCDate(next.getUTCDate() + 7);
+    const nextDate = next.toISOString().slice(0, 10);
     const group = runs.filter((run) => {
       const day = run.startLocal.slice(0, 10);
-      return day >= date && day <= end;
+      return (
+        day >= date && day < nextDate && day >= startDate && day <= endDate
+      );
     });
     result.push({ date, ...summarize(group) });
+    date = nextDate;
   }
   return result;
 }

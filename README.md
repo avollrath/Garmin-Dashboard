@@ -38,14 +38,14 @@ run local code to read your data.
 npm.cmd run garmin:sync
 ```
 
-Imports the last 90 calendar days of running activities, including running subtypes
-returned by Garmin. Pagination fetches the full range. Data lives in ignored
+Imports your full running history, including running subtypes returned by Garmin.
+Pagination continues until all available activities are fetched. Data lives in ignored
 `data/runs.json`; only training fields are retained, without profile or GPS fields.
 Activity names may still contain place names. Failed imports preserve the last
 complete snapshot. Tokens are reused in process memory until renewal is needed.
 
 Distances remain in meters and times in seconds; the dashboard converts for display.
-Activity dates use Garmin's recorded local time. The import window uses Europe/Kyiv.
+Activity dates use Garmin's recorded local time. The import ends at today's date in Europe/Kyiv.
 
 ## Step 3: Open your dashboard
 
@@ -57,8 +57,13 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000). No install or build is need
 Use `npm.cmd run dev` for automatic server restarts during development; reload the
 browser after frontend edits. Stop either command with Ctrl+C.
 
-- Select 7, 28, or 90 days for distance, timer time, average pace, and run totals.
-- View weekly mileage, a 90-day consistency calendar, and Garmin heart rate zones.
+- Select 7, 28, or 90 days, **All time**, or a calendar year for distance, timer time,
+  average pace, run totals, heart rate zones, and the run log. Every year from your
+  earliest run through the current year is available, including years without runs.
+- Distance charts show weeks for rolling periods, months for calendar years, and
+  years for All time. The consistency calendar remains a separate recent 90-day view.
+- If your saved snapshot came from the old 90-day importer, select **Sync Garmin**
+  once to enable full-history filters.
 - Search and sort your run log; select a run for cadence, elevation, and training metrics.
 - Select **Sync Garmin** after your watch syncs to Garmin Connect. Saved data stays
   available if refresh fails. Opening the dashboard reads the snapshot without calling Garmin.
@@ -66,7 +71,8 @@ browser after frontend edits. Stop either command with Ctrl+C.
 Pace is total timer time divided by distance for runs with both values. Paused time
 is excluded according to Garmin's timer duration. Missing sensor values display as
 `—`. Distance change compares the prior equal period only when the imported range
-covers it. Partial weeks are labeled. No coaching scores or recovery estimates are invented.
+covers it. Calendar-year views use January 1 through December 31; the current year
+ends today. Partial chart periods are labeled. No coaching scores or recovery estimates are invented.
 
 Server binds to `127.0.0.1`; credentials never reach browser code. To use another
 local port, add `PORT=3001` to `.env` and restart. This server is for local use.
@@ -80,7 +86,8 @@ npm.cmd test
 Tests use synthetic data and require neither credentials nor network access.
 
 Checks cover token reuse, sanitized errors, pace and heart rate weighting, missing
-sensors, date boundaries, weekly buckets, and local HTTP access restrictions.
+sensors, date boundaries, calendar years and leap days, monthly/yearly buckets,
+full-history pagination, preserved snapshots, and local HTTP access restrictions.
 The HTTP test also verifies failed refresh leaves the saved snapshot available.
 Live authentication, history import, and dashboard refresh were verified during
 setup. Browser visual QA was unavailable in this session; responsive layout and

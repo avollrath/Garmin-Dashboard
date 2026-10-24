@@ -1,6 +1,5 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { getActivities } from "./garmin.mjs";
-import { shiftDate } from "../public/metrics.mjs";
 
 const dataFile = new URL("../data/runs.json", import.meta.url);
 let syncInProgress;
@@ -74,39 +73,37 @@ export function syncHistory() {
 
 async function importHistory() {
   const endDate = today();
-  const startDate = shiftDate(endDate, -89);
   const runs = new Map();
-  let completed = false;
-  for (let page = 0; page < 100; page++) {
+  for (let start = 0; ; start += 100) {
     const activities = await getActivities({
-      start: page * 100,
+      start,
       limit: 100,
       activityType: "running",
-      startDate,
       endDate,
     });
+    const previousCount = runs.size;
     for (const activity of activities) {
       const run = normalizeRun(activity);
       const date = run.startLocal.slice(0, 10);
-      if (date >= startDate && date <= endDate) runs.set(run.id, run);
+      if (date <= endDate) runs.set(run.id, run);
     }
-    if (activities.length < 100) {
-      completed = true;
-      break;
+    if (activities.length < 100) break;
+    if (runs.size === previousCount) {
+      throw new Error(
+        "Garmin pagination made no progress; existing data was preserved.",
+      );
     }
   }
-  if (!completed)
-    throw new Error(
-      "Garmin pagination limit reached; existing data was preserved.",
-    );
+  const sortedRuns = [...runs.values()].sort((a, b) =>
+    b.startLocal.localeCompare(a.startLocal),
+  );
   const history = {
     version: 1,
+    scope: "all",
     syncedAt: new Date().toISOString(),
-    startDate,
+    startDate: sortedRuns.at(-1)?.startLocal.slice(0, 10) ?? endDate,
     endDate,
-    runs: [...runs.values()].sort((a, b) =>
-      b.startLocal.localeCompare(a.startLocal),
-    ),
+    runs: sortedRuns,
   };
   await mkdir(new URL("../data/", import.meta.url), { recursive: true });
   // Replace only after every page succeeds; failed imports preserve the previous snapshot.

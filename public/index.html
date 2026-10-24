@@ -91,12 +91,28 @@
             <h2>The overview</h2>
             <span id="range-caption" class="muted"></span>
           </div>
-          <div class="range-control" role="group" aria-label="Training period">
-            <button data-days="7" aria-pressed="false">7 days</button
-            ><button data-days="28" aria-pressed="true">28 days</button
-            ><button data-days="90" aria-pressed="false">90 days</button>
+          <div class="period-controls">
+            <div
+              class="range-control"
+              role="group"
+              aria-label="Training period"
+            >
+              <button data-period="7" aria-pressed="false">7 days</button>
+              <button data-period="28" aria-pressed="true">28 days</button>
+              <button data-period="90" aria-pressed="false">90 days</button>
+              <button data-period="all" aria-pressed="false" disabled>
+                All time
+              </button>
+            </div>
+            <select id="year-select" aria-label="Calendar year" disabled>
+              <option value="">Year…</option>
+            </select>
           </div>
         </section>
+        <div id="history-notice" class="message" role="status" hidden>
+          Sync Garmin to load full history and enable All time and calendar
+          years.
+        </div>
 
         <div id="loading" class="loading-state">
           Getting your training together…
@@ -162,12 +178,12 @@
               <div class="panel-heading">
                 <div>
                   <p class="eyebrow">BUILDING THE BASE</p>
-                  <h2>Weekly distance</h2>
+                  <h2 id="volume-heading">Weekly distance</h2>
                 </div>
                 <span class="legend"><i></i> Distance · km</span>
               </div>
               <div id="volume-chart" class="volume-chart"></div>
-              <p class="panel-footnote">
+              <p class="panel-footnote" id="volume-note">
                 Weeks start Monday. First and current weeks may be partial.
               </p>
             </section>

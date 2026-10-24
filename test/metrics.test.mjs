@@ -4,8 +4,9 @@ import {
   duration,
   inRange,
   pace,
+  periodRange,
   summarize,
-  weeks,
+  groupRuns,
 } from "../public/metrics.mjs";
 
 const runs = [
@@ -55,11 +56,12 @@ test("seven-day window includes both boundary days and excludes future runs", ()
     { startLocal: "2026-10-17T23:59:59" },
     { startLocal: "2026-10-25T00:00:00" },
   ];
-  assert.deepEqual(inRange(candidates, "2026-10-24", 7), runs);
+  const range = periodRange("7", "2026-10-24");
+  assert.deepEqual(inRange(candidates, range.start, range.end), runs);
 });
 
 test("weekly buckets include rest weeks, use Monday, and cross year boundaries", () => {
-  const buckets = weeks(
+  const buckets = groupRuns(
     [{ ...runs[0], startLocal: "2026-01-05T08:00:00" }],
     "2025-12-31",
     "2026-01-06",
@@ -71,6 +73,61 @@ test("weekly buckets include rest weeks, use Monday, and cross year boundaries",
       ["2026-01-05", 5],
     ],
   );
+});
+
+test("calendar year includes leap day and excludes adjacent years", () => {
+  const range = periodRange("year:2024", "2026-10-24", "2020-11-04");
+  assert.deepEqual(range, {
+    start: "2024-01-01",
+    end: "2024-12-31",
+    label: "2024",
+    unit: "month",
+  });
+  const leapRun = { ...runs[0], startLocal: "2024-02-29T08:00:00" };
+  const candidates = [
+    leapRun,
+    { ...runs[0], startLocal: "2023-12-31T23:59:59" },
+    { ...runs[0], startLocal: "2025-01-01T00:00:00" },
+  ];
+  assert.deepEqual(inRange(candidates, range.start, range.end), [leapRun]);
+  const months = groupRuns(candidates, range.start, range.end, range.unit);
+  assert.equal(months.length, 12);
+  assert.equal(months[1].km, 5);
+  assert.equal(
+    months.reduce((sum, month) => sum + month.km, 0),
+    5,
+  );
+});
+
+test("current calendar year ends today while all-time includes earliest imported run", () => {
+  assert.equal(periodRange("year:2026", "2026-10-24").end, "2026-10-24");
+  const range = periodRange("all", "2026-10-24", "2020-11-04");
+  assert.equal(range.start, "2020-11-04");
+  assert.equal(range.end, "2026-10-24");
+  const oldRun = { ...runs[0], startLocal: "2020-11-04T08:00:00" };
+  const allRuns = [oldRun, ...runs];
+  assert.equal(inRange(allRuns, range.start, range.end).length, 3);
+  const years = groupRuns(allRuns, range.start, range.end, range.unit);
+  assert.equal(years.length, 7);
+  assert.deepEqual(
+    years.map((year) => year.km),
+    [5, 0, 0, 0, 0, 0, 15],
+  );
+});
+
+test("partial calendar buckets exclude records before selected start and after today", () => {
+  const months = groupRuns(
+    [
+      { ...runs[0], startLocal: "2020-11-03T08:00:00" },
+      { ...runs[0], startLocal: "2020-11-04T08:00:00" },
+      { ...runs[0], startLocal: "2020-11-10T08:00:00" },
+    ],
+    "2020-11-04",
+    "2020-11-09",
+    "month",
+  );
+  assert.equal(months[0].count, 1);
+  assert.equal(months[0].km, 5);
 });
 
 test("formatting carries rounded seconds and minutes without invalid values", () => {
