@@ -1,0 +1,12 @@
+{
+  "name": "garmin-dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "scripts": {
+    "garmin:check": "node --env-file-if-exists=.env scripts/check-garmin.mjs"
+  }
+}

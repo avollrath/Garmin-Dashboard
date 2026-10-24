@@ -1,0 +1,21 @@
+# Credentials and local overrides
+.env
+.env.*
+!.env.example
+
+# Dependencies and generated output
+node_modules/
+.next/
+dist/
+coverage/
+*.log
+
+# Personal activity data and token caches
+data/
+.cache/
+*.fit
+*.FIT
+
+# OS files
+.DS_Store
+Thumbs.db
