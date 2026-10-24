@@ -32,13 +32,29 @@ This connects repository code to your account. It does not install a persistent
 Garmin connector in ChatGPT. During work in this repository, the coding agent can
 run local code to read your data.
 
+## Step 2: Import your running history
+
+```powershell
+npm.cmd run garmin:sync
+```
+
+Imports the last 90 calendar days of running activities, including running subtypes
+returned by Garmin. Pagination fetches the full range. Data lives in ignored
+`data/runs.json`; only training fields are retained, without profile or GPS fields.
+Activity names may still contain place names. Failed imports preserve the last
+complete snapshot. Tokens are reused in process memory until renewal is needed.
+
+Distances remain in meters and times in seconds; the dashboard converts for display.
+Activity dates use Garmin's recorded local time. The import window uses Europe/Kyiv.
+
 ## Next steps
 
-- Step 2: Fetch training history into an ignored local cache; normalize dates and units.
 - Step 3: Build the local dashboard around real activities and recovery data.
 - Step 4: Add refresh controls, error states, and focused validation.
 
 Hosting and scheduled synchronization can be decided after the local dashboard works.
+
+Run focused checks with `npm.cmd test` (no credentials or network required).
 
 ## Official references
 
