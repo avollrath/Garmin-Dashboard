@@ -26,7 +26,7 @@ memory; `.env`, local data, and caches are ignored by Git.
 
 Garmin returns the token as plain text. Tokens last up to 24 hours, limited by key
 expiration; there is no refresh token. This one-off check obtains a fresh token
-each run. The dashboard will need to reuse its token until renewal is needed.
+each run. The dashboard reuses its token in memory until renewal is needed.
 
 This connects repository code to your account. It does not install a persistent
 Garmin connector in ChatGPT. During work in this repository, the coding agent can
@@ -47,14 +47,39 @@ complete snapshot. Tokens are reused in process memory until renewal is needed.
 Distances remain in meters and times in seconds; the dashboard converts for display.
 Activity dates use Garmin's recorded local time. The import window uses Europe/Kyiv.
 
-## Next steps
+## Step 3: Open your dashboard
 
-- Step 3: Build the local dashboard around real activities and recovery data.
-- Step 4: Add refresh controls, error states, and focused validation.
+```powershell
+npm.cmd start
+```
 
-Hosting and scheduled synchronization can be decided after the local dashboard works.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000). No install or build is needed.
+Use `npm.cmd run dev` for automatic server restarts during development; reload the
+browser after frontend edits. Stop either command with Ctrl+C.
 
-Run focused checks with `npm.cmd test` (no credentials or network required).
+- Select 7, 28, or 90 days for distance, timer time, average pace, and run totals.
+- View weekly mileage, a 90-day consistency calendar, and Garmin heart rate zones.
+- Search and sort your run log; select a run for cadence, elevation, and training metrics.
+- Select **Sync Garmin** after your watch syncs to Garmin Connect. Saved data stays
+  available if refresh fails. Opening the dashboard reads the snapshot without calling Garmin.
+
+Pace is total timer time divided by distance for runs with both values. Paused time
+is excluded according to Garmin's timer duration. Missing sensor values display as
+`—`. Distance change compares the prior equal period only when the imported range
+covers it. Partial weeks are labeled. No coaching scores or recovery estimates are invented.
+
+Server binds to `127.0.0.1`; credentials never reach browser code. To use another
+local port, add `PORT=3001` to `.env` and restart. This server is for local use.
+
+## Step 4: Validate
+
+```powershell
+npm.cmd test
+```
+
+Tests use synthetic data and require neither credentials nor network access.
+
+Hosting and scheduled synchronization can be decided separately.
 
 ## Official references
 

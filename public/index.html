@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#202720" />
+    <meta
+      name="description"
+      content="Your personal running journal. Training data from Garmin Connect."
+    />
+    <title>Stride — Your running, in perspective</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/app.css" />
+    <script type="module" src="/app.mjs"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to training</a>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Stride home"
+        ><img src="/favicon.svg" alt="" width="36" height="36" /><span
+          >stride<span class="brand-dot">.</span></span
+        ></a
+      >
+      <div class="sidebar-caption">YOUR RUNNING JOURNAL</div>
+      <nav aria-label="Main navigation">
+        <a class="nav-item active" href="#main"
+          ><span aria-hidden="true">▦</span> Overview
+          <span class="nav-arrow" aria-hidden="true">↗</span></a
+        >
+        <a class="nav-item" href="#run-log"
+          ><span aria-hidden="true">≡</span> Run log</a
+        >
+        <a class="nav-item" href="#consistency"
+          ><span aria-hidden="true">▥</span> Consistency</a
+        >
+      </nav>
+      <div class="sidebar-note">
+        <span class="note-mark" aria-hidden="true">↗</span>
+        <p>Small steps.<br />Long game.</p>
+        <span>Every run is part of the story.</span>
+      </div>
+      <div class="source-card">
+        <span class="source-dot"></span>
+        <div>Garmin Connect<small>Official Personal API</small></div>
+        <span class="source-lock" aria-label="Local dashboard">⌂</span>
+      </div>
+      <div class="sidebar-footer">Your data. Your pace.</div>
+    </aside>
+
+    <main id="main">
+      <header class="topbar">
+        <span class="breadcrumb">TRAINING <span>/</span> RUNNING</span>
+        <div class="topbar-right">
+          <span class="private-badge"><span></span> Local &amp; private</span
+          ><span class="avatar" aria-label="Personal account">YOU</span>
+        </div>
+      </header>
+      <div class="page">
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow" id="today-label">
+              YOUR TRAINING, IN PERSPECTIVE
+            </p>
+            <h1>One run at a time<span>.</span></h1>
+            <p class="subtitle">
+              A little perspective on the miles you're putting in.
+            </p>
+          </div>
+          <div class="sync-block">
+            <button class="sync-button" id="sync">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+              >
+                <path d="M20 7v5h-5M4 17v-5h5" />
+                <path
+                  d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 18 17"
+                /></svg
+              ><span>Sync Garmin</span></button
+            ><span id="sync-status" class="sync-status" role="status"
+              >Loading saved training…</span
+            >
+          </div>
+        </section>
+        <div id="message" class="message" role="alert" hidden></div>
+        <section class="range-row">
+          <div>
+            <h2>The overview</h2>
+            <span id="range-caption" class="muted"></span>
+          </div>
+          <div class="range-control" role="group" aria-label="Training period">
+            <button data-days="7" aria-pressed="false">7 days</button
+            ><button data-days="28" aria-pressed="true">28 days</button
+            ><button data-days="90" aria-pressed="false">90 days</button>
+          </div>
+        </section>
+
+        <div id="loading" class="loading-state">
+          Getting your training together…
+        </div>
+        <section id="empty" class="empty-state" hidden>
+          <span aria-hidden="true">↗</span>
+          <h2>Your next chapter starts here.</h2>
+          <p id="empty-text">
+            Sync Garmin to bring your running history into view.
+          </p>
+          <button class="text-button" id="empty-sync">
+            Sync running history →
+          </button>
+        </section>
+
+        <div id="dashboard" hidden>
+          <section class="metrics" aria-label="Training totals">
+            <article class="metric-card featured">
+              <div class="metric-top">
+                <h3>Total distance</h3>
+                <span aria-hidden="true">↗</span>
+              </div>
+              <div class="metric-value">
+                <span id="total-distance">—</span
+                ><span class="metric-unit">km</span>
+              </div>
+              <div id="distance-note" class="metric-note"></div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-top">
+                <h3>Time on your feet</h3>
+                <span aria-hidden="true">◷</span>
+              </div>
+              <div class="metric-value time-value" id="total-time">—</div>
+              <div class="metric-note">Recorded timer time</div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-top">
+                <h3>Average pace</h3>
+                <span aria-hidden="true">⌁</span>
+              </div>
+              <div class="metric-value">
+                <span id="average-pace">—</span
+                ><span class="metric-unit">/km</span>
+              </div>
+              <div class="metric-note">Weighted by distance</div>
+            </article>
+            <article class="metric-card">
+              <div class="metric-top">
+                <h3>Runs logged</h3>
+                <span aria-hidden="true">⚑</span>
+              </div>
+              <div class="metric-value">
+                <span id="run-count">—</span
+                ><span class="metric-unit">runs</span>
+              </div>
+              <div id="run-note" class="metric-note"></div>
+            </article>
+          </section>
+
+          <div class="primary-grid">
+            <section class="panel volume-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">BUILDING THE BASE</p>
+                  <h2>Weekly distance</h2>
+                </div>
+                <span class="legend"><i></i> Distance · km</span>
+              </div>
+              <div id="volume-chart" class="volume-chart"></div>
+              <p class="panel-footnote">
+                Weeks start Monday. First and current weeks may be partial.
+              </p>
+            </section>
+            <section class="panel latest-panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">THE LATEST CHAPTER</p>
+                  <h2>Most recent run</h2>
+                </div>
+                <span aria-hidden="true" class="diagonal-arrow">↗</span>
+              </div>
+              <div id="latest-run"></div>
+            </section>
+          </div>
+
+          <div class="secondary-grid">
+            <section class="panel" id="consistency">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">SHOWING UP ADDS UP</p>
+                  <h2>Your consistency</h2>
+                </div>
+                <span class="tag">90 days</span>
+              </div>
+              <div id="calendar" class="calendar"></div>
+              <div class="calendar-footer">
+                <span id="consistency-note"></span
+                ><span class="heat-legend"
+                  >Less <i></i><i></i><i></i><i></i> More</span
+                >
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">HOW THE EFFORT ADDS UP</p>
+                  <h2>Heart rate zones</h2>
+                </div>
+                <span class="tag" id="zone-period">28 days</span>
+              </div>
+              <div id="zones" class="zones"></div>
+              <p class="panel-footnote">
+                Time in zones reported by Garmin for these runs.
+              </p>
+            </section>
+          </div>
+
+          <section class="panel run-log" id="run-log">
+            <div class="panel-heading log-heading">
+              <div>
+                <p class="eyebrow">THE WORK YOU PUT IN</p>
+                <h2>
+                  Run log <span id="log-count" class="count-badge"></span>
+                </h2>
+              </div>
+              <div class="log-tools">
+                <label class="search-label"
+                  ><span aria-hidden="true">⌕</span
+                  ><input
+                    id="search"
+                    type="search"
+                    placeholder="Find a run…"
+                    aria-label="Search run names" /></label
+                ><label class="sr-only" for="sort">Sort runs</label
+                ><select id="sort">
+                  <option value="newest">Newest first</option>
+                  <option value="longest">Longest first</option>
+                  <option value="fastest">Fastest pace</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th scope="col">ACTIVITY</th>
+                    <th scope="col">DATE</th>
+                    <th scope="col">DISTANCE</th>
+                    <th scope="col">TIME</th>
+                    <th scope="col">PACE /KM</th>
+                    <th scope="col">AVG HR</th>
+                    <th scope="col">GAIN</th>
+                  </tr>
+                </thead>
+                <tbody id="runs-body"></tbody>
+              </table>
+            </div>
+            <div id="no-results" class="no-results" hidden>
+              No runs match your search.
+            </div>
+            <div class="table-footer">
+              <span id="table-caption"></span
+              ><button id="show-all" class="text-button" hidden>
+                Show all runs ↓
+              </button>
+            </div>
+          </section>
+        </div>
+        <footer class="page-footer">
+          <span><strong>stride.</strong> A personal view of your running.</span
+          ><span
+            >Powered by your Garmin Connect data
+            <span class="footer-dot">·</span> Metric units</span
+          >
+        </footer>
+      </div>
+    </main>
+    <dialog id="run-dialog" aria-labelledby="detail-name">
+      <button
+        class="close-dialog"
+        id="close-dialog"
+        aria-label="Close run details"
+      >
+        ×
+      </button>
+      <p class="eyebrow">A CLOSER LOOK</p>
+      <h2 id="detail-name"></h2>
+      <p id="detail-date" class="muted"></p>
+      <div id="detail-metrics" class="detail-grid"></div>
+      <p class="panel-footnote">
+        Pace uses recorded timer time. Missing metrics appear as —.
+      </p>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to view your running dashboard.
+      </p></noscript
+    >
+  </body>
+</html>
