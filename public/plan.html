@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#202720" />
+    <meta
+      name="description"
+      content="Your personal running, rowing, and gym training plan."
+    />
+    <title>Training plan — Stride</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/app.css" />
+    <script type="module" src="/plan.mjs"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to training plan</a>
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="Stride home"
+        ><img src="/favicon.svg" alt="" width="36" height="36" /><span
+          >stride<span class="brand-dot">.</span></span
+        ></a
+      >
+      <div class="sidebar-caption">YOUR RUNNING JOURNAL</div>
+      <nav aria-label="Main navigation">
+        <a class="nav-item" href="/"
+          ><span aria-hidden="true">▦</span> Overview</a
+        >
+        <a class="nav-item" href="/#run-log"
+          ><span aria-hidden="true">≡</span> Run log</a
+        >
+        <a class="nav-item" href="/#consistency"
+          ><span aria-hidden="true">▥</span> Consistency</a
+        >
+        <a class="nav-item" href="/stats"
+          ><span aria-hidden="true">☆</span> Fun stats</a
+        >
+        <a class="nav-item active" href="/plan" aria-current="page"
+          ><span aria-hidden="true">▤</span> Training plan
+          <span class="nav-arrow" aria-hidden="true">↗</span></a
+        >
+      </nav>
+      <div class="sidebar-note">
+        <span class="note-mark" aria-hidden="true">↗</span>
+        <p>Build the habit.<br />Find your pace.</p>
+        <span>One repeatable week at a time.</span>
+      </div>
+      <div class="source-card">
+        <span class="source-dot"></span>
+        <div>Garmin Connect<small>Personal training plan</small></div>
+        <span class="source-lock" aria-label="Local dashboard">⌂</span>
+      </div>
+      <div class="sidebar-footer">Your data. Your pace.</div>
+    </aside>
+    <main id="main">
+      <header class="topbar">
+        <span class="breadcrumb">TRAINING <span>/</span> YOUR PLAN</span>
+        <div class="topbar-right">
+          <a class="page-link" href="/">Overview</a
+          ><a class="page-link" href="/stats">Fun stats</a
+          ><span class="private-badge"><span></span> Local &amp; private</span>
+        </div>
+      </header>
+      <div class="page">
+        <section class="page-heading">
+          <div>
+            <p class="eyebrow">A LITTLE STRUCTURE. A LONG GAME.</p>
+            <h1>Your next chapter<span>.</span></h1>
+            <p class="subtitle" id="plan-goal">
+              A personal plan for running, rowing, and the gym.
+            </p>
+          </div>
+          <span class="stats-status" id="plan-status" role="status"
+            >Loading your plan…</span
+          >
+        </section>
+        <div id="message" class="message" role="alert" hidden></div>
+        <div id="loading" class="loading-state">
+          Getting your next sessions together…
+        </div>
+        <section id="empty" class="empty-state" hidden>
+          <span aria-hidden="true">▤</span>
+          <h2>Your next chapter is taking shape.</h2>
+          <p>Your personal training plan isn't loaded yet.</p>
+          <a class="text-button" href="/">Back to Overview →</a>
+        </section>
+        <div id="plan-content" hidden>
+          <section class="plan-focus-grid" aria-label="Next sessions">
+            <article class="panel plan-today">
+              <p class="eyebrow">TODAY</p>
+              <h2 id="today-date"></h2>
+              <div id="today-sessions"></div>
+            </article>
+            <article class="panel">
+              <p class="eyebrow">TOMORROW</p>
+              <h2 id="tomorrow-date"></h2>
+              <div id="tomorrow-sessions"></div>
+            </article>
+          </section>
+          <section class="stats-section" aria-labelledby="week-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">YOUR WEEK, LAID OUT</p>
+                <h2 id="week-heading">This week's plan</h2>
+                <p class="habit-note" id="week-dates"></p>
+              </div>
+              <div class="plan-week-controls">
+                <button
+                  class="plan-step"
+                  id="previous-week"
+                  aria-label="Previous week"
+                >
+                  ←</button
+                ><label class="sr-only" for="week-select">Plan week</label
+                ><select id="week-select"></select
+                ><button
+                  class="plan-step"
+                  id="next-week"
+                  aria-label="Next week"
+                >
+                  →</button
+                ><button class="text-button" id="current-week">
+                  Current week
+                </button>
+              </div>
+            </div>
+            <div
+              class="plan-week-summary"
+              id="week-summary"
+              role="status"
+            ></div>
+            <p class="plan-week-focus" id="week-focus"></p>
+            <div class="plan-days" id="week-sessions"></div>
+            <p class="panel-footnote">
+              Sessions shown are planned, not completed workouts. Running
+              minutes include warm-up, recoveries, and cooldown. Review recovery
+              before advancing.
+            </p>
+          </section>
+          <section class="stats-section" aria-labelledby="roadmap-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">THE BIGGER PICTURE</p>
+                <h2 id="roadmap-heading">Your progression</h2>
+              </div>
+            </div>
+            <div class="plan-roadmap" id="plan-roadmap"></div>
+          </section>
+          <section class="stats-section" aria-labelledby="guidance-heading">
+            <div class="stats-section-heading">
+              <div>
+                <p class="eyebrow">MAKE IT REPEATABLE</p>
+                <h2 id="guidance-heading">How to use this plan</h2>
+              </div>
+            </div>
+            <div class="plan-guidance" id="plan-guidance"></div>
+          </section>
+          <details class="panel plan-rationale">
+            <summary>Why this plan fits your training history</summary>
+            <div id="plan-rationale"></div>
+          </details>
+        </div>
+        <footer class="page-footer">
+          <span><strong>stride.</strong> A plan you can build on.</span
+          ><span
+            >Personal plan <span class="footer-dot">·</span> Local &amp;
+            private</span
+          >
+        </footer>
+      </div>
+    </main>
+    <noscript
+      ><p class="noscript">
+        Enable JavaScript to view your training plan.
+      </p></noscript
+    >
+  </body>
+</html>

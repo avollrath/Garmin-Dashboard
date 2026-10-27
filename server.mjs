@@ -6,11 +6,17 @@ let port = Number(process.env.PORT ?? 3000);
 const assets = new Map([
   ["/", ["index.html", "text/html; charset=utf-8"]],
   ["/stats", ["stats.html", "text/html; charset=utf-8"]],
+  ["/plan", ["plan.html", "text/html; charset=utf-8"]],
   ["/app.css", ["app.css", "text/css; charset=utf-8"]],
   ["/app.mjs", ["app.mjs", "text/javascript; charset=utf-8"]],
   ["/metrics.mjs", ["metrics.mjs", "text/javascript; charset=utf-8"]],
   ["/fun-stats.mjs", ["fun-stats.mjs", "text/javascript; charset=utf-8"]],
   ["/stats.mjs", ["stats.mjs", "text/javascript; charset=utf-8"]],
+  ["/plan.mjs", ["plan.mjs", "text/javascript; charset=utf-8"]],
+  [
+    "/plan-schedule.mjs",
+    ["plan-schedule.mjs", "text/javascript; charset=utf-8"],
+  ],
   ["/favicon.svg", ["favicon.svg", "image/svg+xml"]],
 ]);
 
@@ -50,6 +56,21 @@ const server = createServer(async (request, response) => {
   }
 
   try {
+    if (request.method === "GET" && pathname === "/api/plan") {
+      let plan = null;
+      try {
+        plan = JSON.parse(
+          await readFile(
+            new URL("./data/training-plan.json", import.meta.url),
+            "utf8",
+          ),
+        );
+      } catch (error) {
+        if (error.code !== "ENOENT")
+          throw new Error("Cannot read saved training plan.");
+      }
+      return json(response, 200, { plan, today: today() });
+    }
     if (request.method === "GET" && pathname === "/api/training") {
       return json(response, 200, {
         history: await readHistory(),

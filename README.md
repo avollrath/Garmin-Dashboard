@@ -100,6 +100,19 @@ the matching activity's detail dialog on Overview.
 The page reads the saved snapshot without contacting Garmin. Refresh data from
 Overview, then reload Fun stats to update its records.
 
+### Training plan
+
+Open **Training plan** from the sidebar/header or visit [/plan](http://127.0.0.1:3000/plan).
+The page shows today's and tomorrow's sessions, a dated weekly schedule, session
+notes, recovery weeks, and the full progression. Navigate between weeks or return
+to the current week. Sessions are proposed, not automatically marked completed.
+
+Personal dates, session durations, and coaching notes live in ignored
+`data/training-plan.json`, served only through the local `/api/plan` endpoint.
+The page shows an empty state when that private file is absent. No Garmin requests
+are needed to view the plan. Cross-training alternates from its own start date,
+including across week and year boundaries.
+
 ## Step 4: Validate
 
 ```powershell
@@ -113,6 +126,8 @@ sensors, date boundaries, calendar years and leap days, monthly/yearly buckets,
 full-history pagination, preserved snapshots, and local HTTP access restrictions.
 Fun stats tests cover pace thresholds, calendar-day streaks, rest-day gaps,
 distance records, local time habits, and exact milestone distances.
+Plan tests cover its opening sessions, four runs per week, continuous gym/rowing
+alternation, recovery weeks, conditional assessments, and date boundaries.
 The HTTP test also verifies failed refresh leaves the saved snapshot available.
 Live authentication, history import, and dashboard refresh were verified during
 setup. Browser visual QA was unavailable in this session; responsive layout and

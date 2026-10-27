@@ -26,11 +26,14 @@ test(
     for (const path of [
       "/",
       "/stats",
+      "/plan",
       "/app.css",
       "/app.mjs",
       "/metrics.mjs",
       "/fun-stats.mjs",
       "/stats.mjs",
+      "/plan.mjs",
+      "/plan-schedule.mjs",
       "/favicon.svg",
     ]) {
       const response = await fetch(base + path);
@@ -41,6 +44,7 @@ test(
     for (const path of [
       "/.env",
       "/data/runs.json",
+      "/data/training-plan.json",
       "/src/garmin.mjs",
       "/../.env",
     ]) {
@@ -69,6 +73,20 @@ test(
     );
 
     const before = await (await fetch(base + "/api/training")).json();
+    const planResponse = await fetch(base + "/api/plan");
+    assert.equal(planResponse.status, 200);
+    assert.equal(planResponse.headers.get("cache-control"), "no-store");
+    const savedPlan = await planResponse.json();
+    assert.ok(Object.hasOwn(savedPlan, "plan"));
+    assert.match(savedPlan.today, /^\d{4}-\d{2}-\d{2}$/);
+    assert.equal(
+      (
+        await fetch(base + "/api/plan", {
+          headers: { "Sec-Fetch-Site": "cross-site" },
+        })
+      ).status,
+      403,
+    );
     const failed = await fetch(base + "/api/sync", {
       method: "POST",
       headers: { Origin: base },

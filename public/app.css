@@ -70,6 +70,182 @@ svg {
 .page-link:hover {
   text-decoration: underline;
 }
+.plan-focus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+.panel.plan-today {
+  background: #edf4e2;
+  border-color: #cdddba;
+}
+.plan-focus-grid h2 {
+  font-size: 20px;
+  margin-bottom: 22px;
+}
+.plan-task + .plan-task {
+  margin-top: 20px;
+}
+.plan-task .eyebrow {
+  font-size: 9px;
+  margin: 0 0 8px;
+  display: block;
+}
+.plan-task-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.plan-task h3 {
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 550;
+  margin: 0;
+}
+.plan-dose {
+  padding: 4px 7px;
+  border-radius: 4px;
+  background: #e5edd9;
+  color: #526b3c;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.plan-task-note,
+.plan-task-details p,
+.plan-guidance p,
+.plan-rationale p {
+  color: #79866d;
+  font-size: 11px;
+  line-height: 1.8;
+  margin: 12px 0 0;
+}
+.plan-rest h3 {
+  color: #a1aa98;
+  font-weight: 400;
+}
+.plan-week-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.plan-week-controls select,
+.plan-step {
+  border: 1px solid var(--line);
+  background: white;
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: #5c704a;
+  font-size: 12px;
+}
+.plan-week-summary {
+  font-size: 12px;
+  color: #55733e;
+  padding: 13px 16px;
+  background: #eaf1e0;
+  border-radius: 6px;
+  line-height: 1.7;
+}
+.plan-week-focus {
+  font-size: 11px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin: 14px 0 18px;
+}
+.plan-days {
+  display: grid;
+  gap: 10px;
+}
+.plan-day {
+  display: grid;
+  grid-template-columns: 84px repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 22px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.plan-day.is-today {
+  border-color: #96b278;
+  box-shadow: inset 3px 0 #96b278;
+}
+.plan-day > .plan-task {
+  margin-top: 0;
+}
+.plan-day-date strong,
+.plan-day-date > span {
+  display: block;
+}
+.plan-day-date strong {
+  font-size: 15px;
+  font-weight: 550;
+}
+.plan-day-date > span {
+  font-size: 10px;
+  color: #8a967f;
+  margin-top: 6px;
+}
+.plan-day-date .tag {
+  display: inline-block;
+  margin-top: 12px;
+  color: #66824e;
+}
+.plan-task-details summary {
+  font-size: 10px;
+  color: #849873;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.plan-roadmap {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.plan-stage {
+  display: block;
+  min-width: 0;
+  padding: 22px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--ink);
+}
+.plan-stage[aria-pressed="true"] {
+  background: #eaf1df;
+  border-color: #b9cf9e;
+}
+.plan-stage > span,
+.plan-stage strong {
+  display: block;
+}
+.plan-stage strong {
+  font-size: 13px;
+  font-weight: 550;
+  margin: 10px 0;
+}
+.plan-stage > span:last-child {
+  font-size: 10px;
+  line-height: 1.8;
+  color: #89977b;
+}
+.plan-guidance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.plan-guidance h3,
+.plan-rationale summary {
+  font-size: 13px;
+  font-weight: 550;
+  margin: 0;
+}
+.plan-rationale summary {
+  cursor: pointer;
+}
 .stats-status {
   color: var(--muted);
   font-size: 11px;
@@ -1219,6 +1395,9 @@ dialog h2 {
   }
 }
 @media (max-width: 960px) {
+  .plan-roadmap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1309,6 +1488,24 @@ dialog h2 {
   }
 }
 @media (max-width: 740px) {
+  .plan-focus-grid,
+  .plan-guidance {
+    grid-template-columns: 1fr;
+  }
+  .plan-day {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .plan-day-date {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .plan-day-date > span,
+  .plan-day-date .tag {
+    margin: 0;
+  }
   .stats-totals {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 22px;
@@ -1427,6 +1624,10 @@ dialog h2 {
   }
 }
 @media (max-width: 480px) {
+  .plan-roadmap,
+  .plan-day {
+    grid-template-columns: 1fr;
+  }
   .sidebar {
     display: none;
   }
